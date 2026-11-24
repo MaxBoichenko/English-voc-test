@@ -30,14 +30,13 @@ h1{font-size:clamp(28px,4vw,44px)}h2{font-size:clamp(24px,3vw,32px)}
 .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 16px}
 @media(max-width:760px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.w{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 6px;border-radius:8px;cursor:pointer;user-select:none}
+.w{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 6px;border-radius:8px;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 .w:hover{background:light-dark(#f3f5fa,#20253a)}
 .w input{appearance:none;width:20px;height:20px;flex:none;margin:0;border:2px solid var(--line);border-radius:5px;display:grid;place-items:center;cursor:pointer;background:var(--card)}
 .w input:checked{background:var(--ink);border-color:var(--ink)}
 .w input:checked::after{content:"";width:6px;height:11px;border:solid var(--card);border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
 .w input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.w span{font-size:17px;padding:0 3px;background:linear-gradient(var(--hl),var(--hl)) no-repeat 0 85%/0% 45%;transition:background-size .25s}
-.w input:checked+span{background-size:100% 45%}
+.w span{font-size:17px;padding:0 3px}
 .foot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}
 .count{color:var(--mute);font-size:15px}
 .btn{font:600 16px Inter,sans-serif;min-height:48px;padding:0 28px;border-radius:12px;border:2px solid var(--ink);background:var(--acc);color:#fff;cursor:pointer}
