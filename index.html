@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тест словарного запаса</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,500;7..72,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly, encouraging teacher — clear, no clutter
+   IDEA: a dictionary page you mark with a highlighter
+   PICTURE: the word grid itself; checked words get a yellow marker swipe
+   COLOUR and TYPE: white paper, ink, cobalt accent, highlighter yellow; Literata + Inter
+   LAYOUT: one centred card; progress rule on top; result = big number + 7-step scale */
+:root{color-scheme:light dark;
+--bg:light-dark(#eef0f5,#0f1220);--card:light-dark(#fff,#181c2e);--ink:light-dark(#15151a,#eceef6);
+--mute:light-dark(#5b5f6e,#a3a8bd);--line:light-dark(#dfe2ea,#2c3148);--acc:light-dark(#2f4bff,#8193ff);
+--hl:light-dark(#ffe14d,#c9a800);--hlInk:#15151a;--bad:light-dark(#d8342b,#ff7a70)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(20px,4vw,56px) max(4vw,12px)}
+.card{max-width:1000px;margin:0 auto;background:var(--card);border-radius:18px;padding:clamp(22px,4vw,52px);box-shadow:0 1px 2px #0001,0 12px 40px #0000000d}
+h1,h2{font-family:Literata,Georgia,serif;font-weight:700;line-height:1.08;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,4vw,44px)}h2{font-size:clamp(24px,3vw,32px)}
+.step{color:var(--acc);font-weight:600;font-size:14px;margin-bottom:8px}
+.lead{color:var(--mute);max-width:62ch;margin:12px 0 0}
+.bar{height:6px;background:var(--line);border-radius:3px;margin:22px 0 26px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:3px;transition:width .4s}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 16px}
+@media(max-width:760px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.w{display:flex;align-items:center;gap:10px;min-height:44px;padding:4px 6px;border-radius:8px;cursor:pointer;user-select:none}
+.w:hover{background:light-dark(#f3f5fa,#20253a)}
+.w input{appearance:none;width:20px;height:20px;flex:none;margin:0;border:2px solid var(--line);border-radius:5px;display:grid;place-items:center;cursor:pointer;background:var(--card)}
+.w input:checked{background:var(--ink);border-color:var(--ink)}
+.w input:checked::after{content:"";width:6px;height:11px;border:solid var(--card);border-width:0 2.5px 2.5px 0;transform:translateY(-1px) rotate(45deg)}
+.w input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.w span{font-size:17px;padding:0 3px;background:linear-gradient(var(--hl),var(--hl)) no-repeat 0 85%/0% 45%;transition:background-size .25s}
+.w input:checked+span{background-size:100% 45%}
+.foot{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin-top:28px;padding-top:22px;border-top:1px solid var(--line)}
+.count{color:var(--mute);font-size:15px}
+.btn{font:600 16px Inter,sans-serif;min-height:48px;padding:0 28px;border-radius:12px;border:2px solid var(--ink);background:var(--acc);color:#fff;cursor:pointer}
+.btn:hover{filter:brightness(1.08)}.btn:focus-visible{outline:3px solid var(--hl);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--ink)}
+.res{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(24px,4vw,56px);align-items:center}
+@media(max-width:700px){.res{grid-template-columns:minmax(0,1fr)}}
+.big{border:1px solid var(--line);border-radius:16px;padding:26px 20px;text-align:center}
+.num{font:700 clamp(56px,10vw,88px)/1 Literata,Georgia,serif;letter-spacing:-.02em}
+.num small{display:block;font:500 17px Inter,sans-serif;color:var(--mute);margin-top:8px;letter-spacing:0}
+.scale{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-top:18px;position:relative;padding-top:24px}
+.scale b{height:10px;border-radius:2px}
+.scale .arrow{position:absolute;top:0;transform:translateX(-50%);font-size:18px;line-height:1;transition:left .6s}
+.ends{display:flex;justify-content:space-between;color:var(--mute);font-size:13px;margin-top:6px}
+.lvl{font:700 20px Literata,Georgia,serif;margin:18px 0 4px}
+.note{background:light-dark(#fff4f3,#2c1a1d);border-left:3px solid var(--bad);padding:10px 14px;border-radius:6px;font-size:15px;margin-top:16px}
+.bands{margin-top:34px}
+.bands h3,.study h3{font:600 17px Inter,sans-serif;margin:0 0 12px}
+.row{display:grid;grid-template-columns:8.5em minmax(0,1fr) 3em;gap:12px;align-items:center;font-size:14px;margin:6px 0}
+.row .t{height:12px;background:var(--line);border-radius:6px;overflow:hidden}.row .t i{display:block;height:100%;background:var(--acc)}
+.row .p{text-align:right;font-variant-numeric:tabular-nums;color:var(--mute)}
+.study{margin-top:34px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips a{font-size:15px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;color:var(--ink);text-decoration:none}
+.chips a:hover{border-color:var(--acc);color:var(--acc)}
+.acts{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+.toast{color:var(--acc);font-size:14px;align-self:center}
+.small{font-size:13px;color:var(--mute);margin-top:30px}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<main class="band">
+  <section class="card" id="quiz">
+    <div class="step" id="stepLbl">Шаг 1 из 2</div>
+    <h1 id="qTitle">Проверьте общий уровень словарного запаса</h1>
+    <p class="lead" id="qLead">Отметьте слово, если знаете хотя бы одно его значение. Если не уверены в точном смысле — оставьте пустым. Осторожно: среди слов спрятаны несуществующие.</p>
+    <div class="bar"><i id="prog" style="width:0"></i></div>
+    <div class="grid" id="grid" role="group" aria-label="Список слов"></div>
+    <div class="foot">
+      <span class="count" id="count">Отмечено: 0</span>
+      <button class="btn" id="next">Продолжить</button>
+    </div>
+  </section>
+
+  <section class="card" id="result" hidden>
+    <div class="res">
+      <div>
+        <div class="step">Результат</div>
+        <h2>Готово! Мы оценили ваш словарный запас</h2>
+        <p class="lead">У взрослых носителей английского обычно 20 000–35 000 слов. Для свободного общения хватает 3 000–5 000, для чтения книг без словаря — около 8 000–9 000.</p>
+        <div class="lvl" id="lvl"></div>
+        <p class="lead" id="lvlTxt" style="margin-top:4px"></p>
+        <div class="note" id="fakeNote" hidden></div>
+      </div>
+      <div class="big">
+        <div class="num" id="num">0<small>слов</small></div>
+        <div class="scale" id="scale"></div>
+        <div class="ends"><span>Начальный</span><span>Носитель</span></div>
+      </div>
+    </div>
+    <div class="bands"><h3>Сколько слов вы знаете в каждой частотной группе</h3><div id="bandRows"></div></div>
+    <div class="study" id="studyBox"><h3>Слова, которые стоит выучить следующими</h3><div class="chips" id="study"></div></div>
+    <div class="acts">
+      <button class="btn" id="again">Пройти ещё раз</button>
+      <button class="btn ghost" id="copy">Скопировать результат</button>
+      <span class="toast" id="toast"></span>
+    </div>
+    <p class="small">Оценка приблизительная: слова разбиты по частотным группам, доля знакомых слов в группе умножается на её размер. Отмеченные несуществующие слова снижают результат. Частоты — SUBTLEX-US (субтитры американских фильмов и сериалов), словоформы объединены в леммы.</p>
+  </section>
+</main>
+
+<script>
+{
+const BANDS=[
+ {from:0,to:1000,name:"1–1 000",w:"much who them some way little call guy too very sorry sure because hear win these great kill than ever their fine father hold mind came break idea family seem close yet eye sleep gun young order under town exactly dream person side learn against ahead scare free steal fly full news step surprise decide record ten darling hospital ship offer letter buddy absolutely joke strong jump mile worth careful system busy fault dollar weird shoe short pain roll fair reach treat calm grab study cop fear animal folk round bus killer blame public taste peace base cell travel whose color duty large emergency condition river crow"},
+ {from:1000,to:2000,name:"1 001–2 000",w:"bottom trial herself exist credit bright commit above pocket advice comfortable subject bleed desk meat request perfectly quarter repeat switch terrific bedroom threaten downstairs sugar sale shout season meal shape onto male source object process weak defense assistant engage customer handsome creature style bang thought thief miracle degree toilet ocean positive cent shift talent community operate traffic unbelievable sentence panic wipe sock possibility garage physical audience giant distance launch winter super punk article inch prayer loan slowly grandfather apply shave bind naturally sample graduate pump hostage couch aside bump extremely precious federal silent lad behavior review potato rude recall compare impression sigh activity directly beef highly mass surgeon rifle"},
+ {from:2000,to:4000,name:"2 001–4 000",w:"slap bid helicopter flame vice factory poem maintain wander average injury alley brand dine chemical tend organize aid publish temperature choke transport skate tragedy expense signature deposit method hut brick quote pose barn polite combat unique ski accent application snack fetch beloved loyalty divide debate helmet applause bitter clip sober nanny jewelry assistance cease receipt label pony strictly ballet explore certificate rack persuade atmosphere delicate riot oven shovel mule consent giggle glorious somewhat apologise submarine deer messenger invasion holler convenient install corrupt aspirin crop ridge frustrate gratitude auto prophecy stumble shack memo medic squeal domestic consume dinosaur ninth significant morphine offensive battalion dam rendezvous intent drunken housekeeper"},
+ {from:4000,to:6000,name:"4 001–6 000",w:"chunk sloppy ensure franc penetrate text pyramid tab foreman coyote snoop lethal quarantine tango enlist digital merit broker bowel fiber impose precise irrelevant petition litter generate babysitter evaluation boundary hormone temptation visible obstacle biology artificial sever wail metaphor dread enlighten pint chute atom occupation millennium morale elderly tuition freight bridesmaid cinema intervention ulcer raisin jackpot hash unemployed bakery cosmic vibration veal comet sled zap infinite polo secrecy liability ramp distinction perk breakup crummy credential contagious cradle tamper educational hemorrhage perceive maple flour advocate chime demolition tumble franchise whim smother furnace gobble barbarian accustom contraction cinnamon gender interruption acute precision usher midterm caliber sharpen debut irregular preference"},
+ {from:6000,to:9000,name:"6 001–9 000",w:"sly extraterrestrial diminish fore saliva extortion statute intrusion theatrical wallow revolve hind pore engrave dribble implement compatible beak indefinitely hysteria mayonnaise conjure posture bestow skim vending ventilation uranium ingenious mutilate ascend nasal raccoon hiccup fidelity glaze slump arthritis anthem shank toxin etiquette contradiction keel cello trivial reduction birthmark insinuate ethnic scarce dung writ visitation varsity expansion faucet foil purify coy reconnaissance unstoppable nicotine supplement centimeter gravel dominant syllable provocative impeccable aeroplane shroud gynecologist trillion unheard uncanny squander demean projector jugular quail assert unwanted simplicity coerce spiked aristocrat arterial lint papaya rummage equity wharf renovate architectural mosque dissertation indicator"},
+ {from:9000,to:13000,name:"9 001–13 000",w:"inspirational ceramic infrastructure implore chipmunk pertinent emit duress bazooka paralyse rehabilitate depose impetuous betroth severance townspeople impertinent planetary encode uplift lira guile construe unattended adrift electrocution transceiver dawdle vermouth exaggeration prophesy dugout punt clemency mantra bistro chloride amid philanthropist entrails impersonator adolescence licorice ruffian parsley risotto placebo godless comparative fluster revered jaywalk transgression defraud morsel embroider diverse baccarat prospector metaphorically acquittal brassiere propagate quinine decompress textile unpunished invulnerable audible consortium gardenia mire fluctuate contrive sequester hysterics optimum narcissistic pastel jangle cleanliness intrusive tapioca salve forte pessimistic economically nullify grumble psychosomatic vindicate goblet disconcerting pall menial usage orthopedic"},
+ {from:13000,to:18000,name:"13 001–18 000",w:"vanguard vegetative alcove courtesan obese deluge gumption uninhabited fjord confidante incarnate pinnacle boysenberry skew materialistic claustrophobia debauchery enclosure avatar guff leniency edifice vestige grime renown degeneration townsfolk urinary kerchief delectable boondocks bouillabaisse turnstile perennial capacitor fumigate cutlery indeterminate chakra flamenco succotash doppelganger foist hallucinogenic sterilization encampment periphery aphid carouse unbiased wasabi compilation esprit roughshod amniotic concentric prosaic sultry uncaring aerosol evocative neutrino contaminant woofer curdle herbivore peccadillo influx crotchety incorporation cud ambulatory epithet strategize goiter remuneration pantaloons specious resplendent adventuress macroscopic artisan necessitate expediency fracas intrinsic contractual culpable wry linkup eczema colliery impel luminary stupefy anaemic"},
+ {from:18000,to:25000,name:"18 001–25 000",w:"indefensible actuarial cannelloni noncommissioned rhesus tarpon ichthyology cylindrical electrolysis mountainous aviary thallium inaction hatchery amortization feldspar acetate townsman catalyze afield biweekly illiteracy metallurgy phosphorescent precipitous sceptic anticipatory plaintive pomade jojoba anaemia streptomycin pervade bailiwick carcinogenic glamor hibiscus laxity observational professorship sequitur spire alphanumeric amphitheater dulcimer ratification bathysphere defray lectern longitudinal mesmerism monolithic uncounted bamboozle festoon dropsy indecorous lactation lanolin lavaliere moneygrubbing ocarina repugnance hydrolytic indeclinable orlop ungraded ballade beldame braw bunyip captaincy carnauba cooperage diatomaceous dualistic"},
+ {from:25000,to:32399,name:"25 001–32 399",w:"flagellate histamine infarct osteosarcoma oxblood prismatic prostatectomy safflower stent stratospheric tomography wain carronade etcher fiacre heartrending intima liverwort phenomenological purblind shandy trachoma effervesce fulminate aquiline astrophysical barratry calipers centrifugation chirrup chockablock cloacal coliform concordance decentralization defoliate denaturation divisibility dorsiflexion embryologist endometrium evidential externalization fascistic gasification haemolytic incautious licensure muleteer pneumonectomy polystyrene scenarist secession stigmatism stylistically tapster tellurium tonsillar tricentennial trilingual unalloyed unsweetened valvular vermiform"}
+].map(b=>({...b,words:b.w.split(" ")}));
+const FAKES="flindle brimple crastle skentish morticulate verinous trovish glabbery pentrocal sneevish".split(" ");
+const LEVELS=[
+ {max:1000,col:"#1f8a70",n:"A1 — Начальный",t:"Вы знаете самые базовые слова. Отличный старт: учите по 10–15 частотных слов в день."},
+ {max:2500,col:"#1f8a70",n:"A2 — Элементарный",t:"Хватает для простых бытовых ситуаций. Следующая цель — 3 000 самых частых слов."},
+ {max:4500,col:"#1f8a70",n:"B1 — Средний",t:"Вы понимаете повседневную речь и простые тексты. Расширяйте запас чтением адаптированных книг."},
+ {max:7000,col:"#b07a10",n:"B2 — Выше среднего",t:"Можно уверенно общаться и смотреть сериалы с субтитрами. Читайте оригинальные статьи и книги."},
+ {max:10000,col:"#b07a10",n:"C1 — Продвинутый",t:"Вы читаете почти любые тексты. Дальше — идиомы, синонимы и редкая лексика."},
+ {max:20000,col:"#c0352b",n:"C2 — Свободное владение",t:"Уровень образованного пользователя языка. Впечатляет!"},
+ {max:1e9,col:"#c0352b",n:"Уровень носителя",t:"Ваш запас сопоставим с запасом взрослого носителя английского."}
+];
+const $=id=>document.getElementById(id);
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let step,shown,answers,current,resultText="";
+
+function start(){
+  step=1;answers=[];shown=new Set();
+  // step 1: 4 words per band, easy → hard, 2 fake words hidden in the second half
+  let items=[];
+  BANDS.forEach((b,i)=>shuffle(b.words).slice(0,4).forEach(w=>items.push({w,band:i})));
+  const fk=shuffle(FAKES).slice(0,2);
+  fk.forEach((w,k)=>items.splice(14+k*11+(Math.random()*8|0),0,{w,band:-1}));
+  render(items);
+  $("stepLbl").textContent="Шаг 1 из 2";
+  $("qTitle").textContent="Проверьте общий уровень словарного запаса";
+  $("qLead").textContent="Отметьте слово, если знаете хотя бы одно его значение. Если не уверены в точном смысле — оставьте пустым. Осторожно: среди слов спрятаны несуществующие.";
+  $("next").textContent="Продолжить";
+  $("prog").style.width="5%";
+  $("quiz").hidden=false;$("result").hidden=true;
+  window.scrollTo(0,0);
+}
+
+function render(items){
+  current=items;items.forEach(it=>shown.add(it.w));
+  $("grid").innerHTML=items.map((it,i)=>`<label class="w"><input type="checkbox" id="w${step}-${i}"><span>${esc(it.w)}</span></label>`).join("");
+  updCount();
+}
+function updCount(){$("count").textContent="Отмечено: "+$("grid").querySelectorAll("input:checked").length+" из "+current.length}
+$("grid").addEventListener("change",updCount);
+
+function collect(){
+  const boxes=$("grid").querySelectorAll("input");
+  current.forEach((it,i)=>answers.push({...it,known:boxes[i].checked}));
+}
+
+function stats(){
+  const s=BANDS.map(()=>({n:0,k:0}));let fn=0,fk=0;
+  answers.forEach(a=>{if(a.band<0){fn++;if(a.known)fk++}else{s[a.band].n++;if(a.known)s[a.band].k++}});
+  return {s,fn,fk};
+}
+
+function step2(){
+  const {s}=stats();
+  const r=s.map(x=>x.n?x.k/x.n:0);
+  // focus on the zone where knowledge drops off
+  let items=[];
+  BANDS.forEach((b,i)=>{
+    const unsure=r[i]>0&&r[i]<1;
+    const edge=(i>0&&r[i-1]!==r[i])||(i<BANDS.length-1&&r[i+1]!==r[i]);
+    const want=unsure?9:edge?7:3;
+    shuffle(b.words.filter(w=>!shown.has(w))).slice(0,want).forEach(w=>items.push({w,band:i}));
+  });
+  const fk=shuffle(FAKES.filter(w=>!shown.has(w))).slice(0,3);
+  fk.forEach(w=>items.splice(Math.random()*(items.length+1)|0,0,{w,band:-1}));
+  // keep easy → hard order with fakes mixed in
+  step=2;render(items);
+  $("stepLbl").textContent="Шаг 2 из 2";
+  $("qTitle").textContent="Уточним результат";
+  $("qLead").textContent="Этот список подобран под ваш уровень, чтобы посчитать запас точнее. Отметьте слова, у которых знаете хотя бы одно значение.";
+  $("next").textContent="Показать результат";
+  $("prog").style.width="55%";
+  window.scrollTo(0,0);
+}
+
+function finish(){
+  const {s,fn,fk}=stats();
+  const fa=fn?Math.min(fk/fn,.9):0;
+  let total=0;
+  const rows=s.map((x,i)=>{
+    let r=x.n?x.k/x.n:0;
+    if(fa>0)r=Math.max(0,(r-fa)/(1-fa));
+    // bands that were barely sampled inherit the trend: unseen easy bands count as known
+    total+=r*(BANDS[i].to-BANDS[i].from);
+    return r;
+  });
+  total=Math.round(total);
+  const li=LEVELS.findIndex(l=>total<=l.max);
+  const L=LEVELS[li];
+  $("quiz").hidden=true;$("result").hidden=false;window.scrollTo(0,0);
+  $("prog").style.width="100%";
+  // count-up
+  const numEl=$("num");const t0=performance.now();
+  const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const tick=t=>{const p=reduce?1:Math.min(1,(t-t0)/900);numEl.firstChild.nodeValue=Math.round(total*(1-(1-p)**3)).toLocaleString("ru-RU");if(p<1)requestAnimationFrame(tick)};
+  requestAnimationFrame(tick);
+  $("scale").innerHTML=LEVELS.map((l,i)=>`<b style="background:${l.col};opacity:${i===li?1:.45}"></b>`).join("")+`<span class="arrow" style="left:${(li+.5)/7*100}%">↓</span>`;
+  $("lvl").textContent=L.n;$("lvlTxt").textContent=L.t;
+  const note=$("fakeNote");
+  if(fk>0){note.hidden=false;note.textContent=`Вы отметили несуществующие слова (${fk} из ${fn}): ${answers.filter(a=>a.band<0&&a.known).map(a=>a.w).join(", ")}. Результат скорректирован с учётом этого.`}
+  else note.hidden=true;
+  $("bandRows").innerHTML=rows.map((r,i)=>`<div class="row"><span>${BANDS[i].name}</span><div class="t"><i style="width:${Math.round(r*100)}%"></i></div><span class="p">${Math.round(r*100)}%</span></div>`).join("");
+  const unknown=answers.filter(a=>a.band>=0&&!a.known).sort((a,b)=>a.band-b.band).slice(0,12);
+  $("studyBox").hidden=!unknown.length;
+  $("study").innerHTML=unknown.map(a=>`<a href="https://dictionary.cambridge.org/dictionary/english-russian/${encodeURIComponent(a.w)}" target="_blank" rel="noopener">${esc(a.w)}</a>`).join("");
+  resultText=`Мой словарный запас английского — около ${total.toLocaleString("ru-RU")} слов (${L.n}). А сколько у тебя?`;
+}
+
+$("next").addEventListener("click",()=>{collect();if(step===1)step2();else finish()});
+$("again").addEventListener("click",start);
+$("copy").addEventListener("click",async()=>{
+  try{await navigator.clipboard.writeText(resultText);$("toast").textContent="Скопировано!"}
+  catch(e){$("toast").textContent=resultText}
+});
+start();
+}
+</script>
+</body>
+</html>
